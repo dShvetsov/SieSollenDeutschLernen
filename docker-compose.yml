@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  mongo:
+    container_name: ssdl-mongo
+    image: mongo:latest
+    restart: always
+    ports:
+      - ${MONGODB_PORT:-27017}:${MONGODB_PORT:-27017}
+    volumes:
+      - mongodb_volume:/data/db
+
+  ssdl:
+    container_name: ssdl
+    command: "cd ./ssdl && python main.py"
+    restart: always
+    build:
+      context: "."
+      dockerfile: Dockerfile
+    depends_on:
+      - ssdl-mongo
+
+volumes:
+  mongodb_volume:
