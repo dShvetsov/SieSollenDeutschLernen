@@ -10,6 +10,8 @@ import logging
 
 from langchain.schema import AIMessage, HumanMessage, SystemMessage
 from langchain.chat_models import ChatOpenAI
+
+
 chat = ChatOpenAI(temperature=0)
 openai_client = AsyncOpenAI()
 

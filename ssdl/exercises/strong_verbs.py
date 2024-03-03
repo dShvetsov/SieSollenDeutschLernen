@@ -146,7 +146,7 @@ class StrongVerbsExerciseManager:
         return StrongVerbsExercise(example)
 
 
-manager = StrongVerbsExerciseManager('../data/strong_verbs.csv')
+manager = StrongVerbsExerciseManager('./data/strong_verbs.csv')
 
 def register_handlers(bot: AsyncTeleBot):
 
