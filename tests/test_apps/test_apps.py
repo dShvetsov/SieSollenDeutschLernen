@@ -50,3 +50,17 @@ class TestChatHelper:
 
         subscr = mongo_db.chat_helpers_subscribers.find_one(subscriber)
         assert subscr['subscribed'] == False
+
+    def test_is_subscribed_no_entry(self, message, chat_helper):
+        assert not chat_helper.is_subscribed(message)
+
+    @pytest.mark.asyncio
+    async def test_is_subscribed(self, message, chat_helper):
+        await chat_helper.subscribe(message)
+        assert chat_helper.is_subscribed(message)
+
+    @pytest.mark.asyncio
+    async def test_is_subscribed_unsubscribed(self, message, chat_helper):
+        await chat_helper.subscribe(message)
+        await chat_helper.unsubscribe(message)
+        assert not chat_helper.is_subscribed(message)

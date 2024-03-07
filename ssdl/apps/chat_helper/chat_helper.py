@@ -36,3 +36,14 @@ class ChatHelper(TeleApp):
         )
 
         await self._bot.reply_to(message, 'You were unsubscrubed, to unsubscribe type /subscribe')
+
+    def is_subscribed(self, message):
+        subscriber = {
+            'user_id': message.from_user.id,
+            'chat_id': message.chat.id
+        }
+        user = self._subscribers_collection.find_one(subscriber)
+        if user:
+            return user['subscribed']
+        else:
+            return False
