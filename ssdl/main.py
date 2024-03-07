@@ -4,6 +4,7 @@ from telebot.asyncio_storage import StateMemoryStorage
 import asyncio
 import pydantic_settings
 import logging
+import pymongo
 
 from .apps.ping import Ping
 from .apps.chat_helper import ChatHelper
@@ -23,11 +24,14 @@ class TelegramSettings(pydantic_settings.BaseSettings):
 def main():
 
     bot = AsyncTeleBot(TelegramSettings().api_key, state_storage=StateMemoryStorage())
-    bot.add_custom_filter(asyncio_filters.StateFilter(bot))
+    # bot.add_custom_filter(asyncio_filters.StateFilter(bot))
     asyncio.run(bot.set_webhook())
 
+    client = pymongo.MongoClient('mongodb://ssdl-mongo:27017/')
+    db = client.SieSollenDeutschLernen
+
     ping_app = Ping(bot)
-    chat_helper = ChatHelper(bot)
+    chat_helper = ChatHelper(bot, db)
 
     asyncio.run(bot.infinity_polling())
 

@@ -1,4 +1,4 @@
-from ssdl.teleapp import TeleApp, handler
+from ssdl.teleapp import TeleApp, handler, Self
 from telebot.async_telebot import AsyncTeleBot
 from telebot.types import Message
 
@@ -47,3 +47,7 @@ class ChatHelper(TeleApp):
             return user['subscribed']
         else:
             return False
+
+    @handler.message_handler(chat_types=groups, func=Self('is_subscribed'))
+    async def analyze_mistakes(self, message):
+        await self._bot.reply_to(message, 'Just imagine that I helped you')
