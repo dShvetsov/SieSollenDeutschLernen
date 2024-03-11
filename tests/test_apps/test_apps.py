@@ -64,3 +64,19 @@ class TestChatHelper:
         await chat_helper.subscribe(message)
         await chat_helper.unsubscribe(message)
         assert not chat_helper.is_subscribed(message)
+
+    @pytest.mark.asyncio
+    async def test_analyze_mistakes(self, message, chat_helper, mongo_db):
+        message.json = {
+            'chat_id': 1000,
+            'user_id': 1,
+            'text': 'Text os the message',
+            'message_id': 123
+        }
+        await chat_helper.analyze_mistakes(message)
+        mongo_db.messages.find_one({'message_id': 123}) == {
+            'chat_id': 1000,
+            'user_id': 1,
+            'text': 'Text os the message',
+            'message_id': 123
+        }

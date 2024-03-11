@@ -13,6 +13,7 @@ class ChatHelper(TeleApp):
         self._bot = bot
         self._db = db
         self._subscribers_collection = self._db['chat_helpers_subscribers']
+        self._messages_collection = self._db['messages']
 
     @handler.message_handler(chat_types=groups, commands=['subscribe'])
     async def subscribe(self, message: Message):
@@ -26,7 +27,7 @@ class ChatHelper(TeleApp):
         await self._bot.reply_to(message, 'You were subscrubed, to unsubscribe type /unsubscribe')
 
     @handler.message_handler(chat_types=groups, commands=['unsubscribe'])
-    async def unsubscribe(self, message):
+    async def unsubscribe(self, message: Message):
         subscriber = {
             'user_id': message.from_user.id,
             'chat_id': message.chat.id
@@ -37,7 +38,7 @@ class ChatHelper(TeleApp):
 
         await self._bot.reply_to(message, 'You were unsubscrubed, to unsubscribe type /subscribe')
 
-    def is_subscribed(self, message):
+    def is_subscribed(self, message: Message):
         subscriber = {
             'user_id': message.from_user.id,
             'chat_id': message.chat.id
@@ -47,6 +48,10 @@ class ChatHelper(TeleApp):
             return user['subscribed']
         else:
             return False
+
+    def save_message(self, message: Message):
+        dump = message.json
+        self._db.messages.insert_one(dump)
 
     @handler.message_handler(chat_types=groups, func=Self('is_subscribed'))
     async def analyze_mistakes(self, message):
