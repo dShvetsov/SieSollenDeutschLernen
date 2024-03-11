@@ -86,3 +86,18 @@ class TestChatHelper:
             'text': 'Text os the message',
             'message_id': 123
         }
+
+    @pytest.mark.asyncio
+    async def test_is_reply_to_bot(self, message, chat_helper):
+        message.reply_to_message.from_user.id = 807
+        assert chat_helper.is_reply_to_bot(message)
+
+    @pytest.mark.asyncio
+    async def test_is_reply_to_bot_not(self, message, chat_helper):
+        message.reply_to_message.from_user.id = 806
+        assert not chat_helper.is_reply_to_bot(message)
+
+    @pytest.mark.asyncio
+    async def test_is_reply_to_bot_not_reply_at_all(self, message, chat_helper):
+        message.reply_to_message = mock.Mock(return_value=None)
+        assert not chat_helper.is_reply_to_bot(message)

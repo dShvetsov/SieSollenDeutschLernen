@@ -1,3 +1,5 @@
+import asyncio
+
 from ssdl.teleapp import TeleApp, handler, Self
 from telebot.async_telebot import AsyncTeleBot
 from telebot.types import Message
@@ -14,6 +16,7 @@ class ChatHelper(TeleApp):
         self._db = db
         self._subscribers_collection = self._db['chat_helpers_subscribers']
         self._messages_collection = self._db['messages']
+        self._bot_id = asyncio.run(bot.get_me()).id
 
     @handler.message_handler(chat_types=groups, commands=['subscribe'])
     async def subscribe(self, message: Message):
@@ -38,7 +41,7 @@ class ChatHelper(TeleApp):
 
         await self._bot.reply_to(message, 'You were unsubscrubed, to unsubscribe type /subscribe')
 
-    def is_subscribed(self, message: Message):
+    def is_subscribed(self, message: Message) -> bool:
         subscriber = {
             'user_id': message.from_user.id,
             'chat_id': message.chat.id
@@ -46,6 +49,13 @@ class ChatHelper(TeleApp):
         user = self._subscribers_collection.find_one(subscriber)
         if user:
             return user['subscribed']
+        else:
+            return False
+
+    def is_reply_to_bot(self, message: Message) -> bool:
+        if message.reply_to_message is not None:
+            replied_to = message.reply_to_message.from_user
+            return replied_to.id == self._bot_id
         else:
             return False
 
