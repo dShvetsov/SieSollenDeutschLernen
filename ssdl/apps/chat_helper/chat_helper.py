@@ -55,4 +55,5 @@ class ChatHelper(TeleApp):
 
     @handler.message_handler(chat_types=groups, func=Self('is_subscribed'))
     async def analyze_mistakes(self, message):
+        self.save_message(message)
         await self._bot.reply_to(message, 'Just imagine that I helped you')

@@ -1,9 +1,14 @@
 import pytest
 from unittest import mock
+from pytest import approx
 
 from ssdl.apps.ping import Ping
 from ssdl.apps.chat_helper import ChatHelper
 
+
+class ANY:
+    def __eq__(self, actual):
+        return True
 
 class TestPing:
 
@@ -74,7 +79,8 @@ class TestChatHelper:
             'message_id': 123
         }
         await chat_helper.analyze_mistakes(message)
-        mongo_db.messages.find_one({'message_id': 123}) == {
+        assert mongo_db.messages.find_one({'message_id': 123}) == {
+            '_id': ANY(),
             'chat_id': 1000,
             'user_id': 1,
             'text': 'Text os the message',
