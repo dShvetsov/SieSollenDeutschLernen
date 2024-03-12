@@ -4,7 +4,8 @@ from ssdl.teleapp import TeleApp, handler, Self
 from telebot.async_telebot import AsyncTeleBot
 from telebot.types import Message
 
-from pymongo.database import Database
+from motor.motor_asyncio import AsyncIOMotorDatabase as Database
+
 
 
 class ChatHelper(TeleApp):
@@ -24,7 +25,7 @@ class ChatHelper(TeleApp):
             'user_id': message.from_user.id,
             'chat_id': message.chat.id
         }
-        self._subscribers_collection.update_one(
+        await self._subscribers_collection.update_one(
             subscriber, {'$set': {'subscribed': True}},  upsert=True
         )
         await self._bot.reply_to(message, 'You were subscrubed, to unsubscribe type /unsubscribe')
@@ -35,18 +36,18 @@ class ChatHelper(TeleApp):
             'user_id': message.from_user.id,
             'chat_id': message.chat.id
         }
-        self._subscribers_collection.update_one(
+        await self._subscribers_collection.update_one(
             subscriber, {'$set': {'subscribed': False}},  upsert=True
         )
 
         await self._bot.reply_to(message, 'You were unsubscrubed, to unsubscribe type /subscribe')
 
-    def is_subscribed(self, message: Message) -> bool:
+    async def is_subscribed(self, message: Message) -> bool:
         subscriber = {
             'user_id': message.from_user.id,
             'chat_id': message.chat.id
         }
-        user = self._subscribers_collection.find_one(subscriber)
+        user = await self._subscribers_collection.find_one(subscriber)
         if user:
             return user['subscribed']
         else:
@@ -59,11 +60,11 @@ class ChatHelper(TeleApp):
         else:
             return False
 
-    def save_message(self, message: Message):
+    async def save_message(self, message: Message):
         dump = message.json
-        self._db.messages.insert_one(dump)
+        await self._db.messages.insert_one(dump)
 
     @handler.message_handler(chat_types=groups, func=Self('is_subscribed'))
     async def analyze_mistakes(self, message):
-        self.save_message(message)
+        await self.save_message(message)
         await self._bot.reply_to(message, 'Just imagine that I helped you')

@@ -5,6 +5,7 @@ import asyncio
 import pydantic_settings
 import logging
 import pymongo
+from motor.motor_asyncio import AsyncIOMotorClient
 
 from .apps.ping import Ping
 from .apps.chat_helper import ChatHelper
@@ -27,7 +28,7 @@ def main():
     # bot.add_custom_filter(asyncio_filters.StateFilter(bot))
     asyncio.run(bot.set_webhook())
 
-    client = pymongo.MongoClient('mongodb://ssdl-mongo:27017/')
+    client = AsyncIOMotorClient('mongodb://ssdl-mongo:27017/')
     db = client.SieSollenDeutschLernen
 
     ping_app = Ping(bot)

@@ -37,7 +37,7 @@ class TestChatHelper:
             'chat_id': 1000
         }
 
-        subscr = mongo_db.chat_helpers_subscribers.find_one(subscriber)
+        subscr = await mongo_db.chat_helpers_subscribers.find_one(subscriber)
         assert subscr['subscribed'] == True
 
     @pytest.mark.asyncio
@@ -53,22 +53,24 @@ class TestChatHelper:
             'chat_id': 1000
         }
 
-        subscr = mongo_db.chat_helpers_subscribers.find_one(subscriber)
+        subscr = await mongo_db.chat_helpers_subscribers.find_one(subscriber)
         assert subscr['subscribed'] == False
 
-    def test_is_subscribed_no_entry(self, message, chat_helper):
-        assert not chat_helper.is_subscribed(message)
+    @pytest.mark.asyncio
+    @pytest.mark.asyncio
+    async def test_is_subscribed_no_entry(self, message, chat_helper):
+        assert not await chat_helper.is_subscribed(message)
 
     @pytest.mark.asyncio
     async def test_is_subscribed(self, message, chat_helper):
         await chat_helper.subscribe(message)
-        assert chat_helper.is_subscribed(message)
+        assert await chat_helper.is_subscribed(message)
 
     @pytest.mark.asyncio
     async def test_is_subscribed_unsubscribed(self, message, chat_helper):
         await chat_helper.subscribe(message)
         await chat_helper.unsubscribe(message)
-        assert not chat_helper.is_subscribed(message)
+        assert not await chat_helper.is_subscribed(message)
 
     @pytest.mark.asyncio
     async def test_analyze_mistakes(self, message, chat_helper, mongo_db):
@@ -79,7 +81,7 @@ class TestChatHelper:
             'message_id': 123
         }
         await chat_helper.analyze_mistakes(message)
-        assert mongo_db.messages.find_one({'message_id': 123}) == {
+        assert await mongo_db.messages.find_one({'message_id': 123}) == {
             '_id': ANY(),
             'chat_id': 1000,
             'user_id': 1,

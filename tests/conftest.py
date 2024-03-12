@@ -1,6 +1,6 @@
 import pytest
 from unittest import mock
-import mongomock
+from mongomock_motor import AsyncMongoMockClient
 
 
 @pytest.fixture
@@ -23,7 +23,7 @@ def message():
 
 @pytest.fixture
 def mongo_client():
-    return mongomock.MongoClient()
+    return AsyncMongoMockClient()
 
 @pytest.fixture
 def mongo_db(mongo_client):
