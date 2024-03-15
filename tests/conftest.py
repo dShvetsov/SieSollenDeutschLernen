@@ -1,6 +1,7 @@
 import pytest
 from unittest import mock
 from mongomock_motor import AsyncMongoMockClient
+from collections import namedtuple
 
 
 @pytest.fixture
@@ -10,6 +11,8 @@ def async_telebot():
     bot.reply_to = mock.AsyncMock()
     bot.get_me = mock.AsyncMock()
     bot.get_me.return_value.id = 807
+    Reply = namedtuple('Reply', ['json'])
+    bot.reply_to = mock.AsyncMock(return_value=Reply(json={'reply': 'to'}))
     return bot
 
 

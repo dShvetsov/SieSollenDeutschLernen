@@ -6,6 +6,7 @@ import pydantic_settings
 import logging
 import pymongo
 from motor.motor_asyncio import AsyncIOMotorClient
+from langchain.chat_models import ChatOpenAI
 
 from .apps.ping import Ping
 from .apps.chat_helper import ChatHelper
@@ -24,6 +25,7 @@ class TelegramSettings(pydantic_settings.BaseSettings):
 
 def main():
 
+    gpt4 = ChatOpenAI(temperature=0, model='gpt-4')
     bot = AsyncTeleBot(TelegramSettings().api_key, state_storage=StateMemoryStorage())
     # bot.add_custom_filter(asyncio_filters.StateFilter(bot))
     asyncio.run(bot.set_webhook())
@@ -32,7 +34,7 @@ def main():
     db = client.SieSollenDeutschLernen
 
     ping_app = Ping(bot)
-    chat_helper = ChatHelper(bot, db)
+    chat_helper = ChatHelper(bot, db, gpt4)
 
     asyncio.run(bot.infinity_polling())
 

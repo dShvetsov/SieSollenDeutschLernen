@@ -1,6 +1,5 @@
 import pytest
 from unittest import mock
-from pytest import approx
 
 from ssdl.apps.ping import Ping
 from ssdl.apps.chat_helper import ChatHelper
@@ -22,7 +21,9 @@ class TestChatHelper:
 
     @pytest.fixture
     def chat_helper(self, async_telebot, mongo_db):
-        return ChatHelper(async_telebot, mongo_db)
+        gpt4 = mock.MagicMock()
+        gpt4.ainvoke = mock.AsyncMock()
+        return ChatHelper(async_telebot, mongo_db, gpt4)
 
     @pytest.mark.asyncio
     async def test_subscribe(self, chat_helper, message, async_telebot, mongo_db):
