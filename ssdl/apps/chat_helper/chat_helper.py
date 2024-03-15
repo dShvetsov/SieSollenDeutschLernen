@@ -1,4 +1,5 @@
 import asyncio
+import io
 
 from ssdl.teleapp import TeleApp, handler, Self
 from telebot.async_telebot import AsyncTeleBot
@@ -7,13 +8,14 @@ from telebot.types import Message
 from motor.motor_asyncio import AsyncIOMotorDatabase as Database
 from langchain.schema import AIMessage, HumanMessage, SystemMessage
 from langchain.chat_models import ChatOpenAI
+from openai import AsyncOpenAI
 
 
 
 class ChatHelper(TeleApp):
     groups = ['group', 'subgroup', 'supergroup']
 
-    def __init__(self, bot: AsyncTeleBot, db: Database, chat: ChatOpenAI):
+    def __init__(self, bot: AsyncTeleBot, db: Database, chat: ChatOpenAI, openai_client: AsyncOpenAI):
         super().__init__(bot)
         self._bot = bot
         self._db = db
@@ -21,6 +23,7 @@ class ChatHelper(TeleApp):
         self._messages_collection = self._db['messages']
         self._bot_id = asyncio.run(bot.get_me()).id
         self._chat = chat
+        self._openai_client = openai_client
 
     @handler.message_handler(chat_types=groups, commands=['subscribe'])
     async def subscribe(self, message: Message):
@@ -124,3 +127,28 @@ class ChatHelper(TeleApp):
         model_answer = await self._chat.ainvoke(lc_messages)
         reply = await self._bot.reply_to(message, model_answer.content)
         await self.save_message(reply)
+
+    async def get_voice_stream(self, message):
+        voice = message.voice
+        if voice.file_size > 715000 or voice.duration > (5 * 60):
+            raise ValueError('Size of the voice is too large')
+        file = await self._bot.get_file(voice.file_id)
+
+        file_bytes = await self._bot.download_file(file.file_path)
+        stream = io.BytesIO(file_bytes)
+        return file.file_path, stream
+
+    @handler.message_handler(chat_types=groups, content_types='voice', func=Self('is_subscribed'))
+    async def analyze_voice(self, message):
+        file_path, stream = await self.get_voice_stream(message)
+        transcript = await self._openai_client.audio.transcriptions.create(
+            model='whisper-1',
+            file=(file_path, stream),
+            response_format='text'
+        )
+        transcript_begin = '-' * 5 + ' transcript ' + '-' * 5
+        transcript_end = '-' * 15
+        await self._bot.reply_to(message, f'{transcript_begin}\n{transcript}\n{transcript_end}')
+
+        message.text = transcript  # TODO: Is it ok?
+        await self.analyze_mistakes(message)
