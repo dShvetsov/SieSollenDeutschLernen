@@ -16,7 +16,7 @@ class ChatHelper(TeleApp):
     groups = ['group', 'subgroup', 'supergroup']
 
     def __init__(self, bot: AsyncTeleBot, db: Database, chat: ChatOpenAI, openai_client: AsyncOpenAI):
-        super().__init__(bot)
+        super().__init__(bot, db)
         self._bot = bot
         self._db = db
         self._subscribers_collection = self._db['chat_helpers_subscribers']
