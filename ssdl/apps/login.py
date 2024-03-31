@@ -65,7 +65,7 @@ class LogIn(TeleApp):
         ''')
         login_message = fix_paragraphes(login_message)
         user_id = message.from_user.id
-        found_user = await self._db.logged_users.find_one({'user_id': user_id})
+        found_user = await self._db.registered_users.find_one({'id': user_id})
         if found_user:
             await self._bot.reply_to(message, "You're already logged in")
         else:
