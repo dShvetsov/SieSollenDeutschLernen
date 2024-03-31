@@ -1,7 +1,7 @@
 version: "3"
 
 services:
-  mongo:
+  ssdl-mongo:
     container_name: ssdl-mongo
     image: mongo:latest
     restart: always
