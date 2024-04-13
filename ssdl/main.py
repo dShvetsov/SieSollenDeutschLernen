@@ -25,6 +25,16 @@ class TelegramSettings(pydantic_settings.BaseSettings):
         env_prefix = "TELEGRAM_BOT_"
 
 
+class MongoDBSettings(pydantic_settings.BaseSettings):
+    port: int
+    username: str
+    password: str
+
+    class Config:
+        env_prefix = 'MONGODB_'
+
+
+
 def main():
 
     gpt4 = ChatOpenAI(temperature=0, model='gpt-4')
@@ -33,7 +43,11 @@ def main():
     # bot.add_custom_filter(asyncio_filters.StateFilter(bot))
     asyncio.run(bot.set_webhook())
 
-    client = AsyncIOMotorClient('mongodb://ssdl-mongo:27017/')
+    settings = MongoDBSettings()
+    client = AsyncIOMotorClient(
+        f'mongodb://{settings.username}:{settings.password}@ssdl-mongo:{settings.port}/',
+
+    )
     db = client.SieSollenDeutschLernen
 
     ping_app = Ping(bot, db)
