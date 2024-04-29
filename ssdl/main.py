@@ -15,7 +15,6 @@ from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from .apps.ping import Ping
 from .apps.chat_helper import ChatHelper
 from .apps.login import LogIn
-from .apps.scheduler_messages import SchedledMessages
 from .apps.words import Words
 from .apps.LearningPlan import LearningPlan
 
