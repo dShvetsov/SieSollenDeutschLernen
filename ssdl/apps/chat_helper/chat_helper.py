@@ -6,8 +6,8 @@ from telebot.async_telebot import AsyncTeleBot
 from telebot.types import Message
 
 from motor.motor_asyncio import AsyncIOMotorDatabase as Database
-from langchain.schema import AIMessage, HumanMessage, SystemMessage
-from langchain.chat_models import ChatOpenAI
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_openai import ChatOpenAI
 from openai import AsyncOpenAI
 
 
