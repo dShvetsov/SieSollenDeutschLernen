@@ -20,8 +20,6 @@ services:
     build:
       context: "."
       dockerfile: Dockerfile
-    volumes:
-      - sqlite_volume:/jobstore
     environment:
       - OPENAI_API_KEY=$OPENAI_API_KEY
       - TELEGRAM_BOT_API_KEY=$TELEGRAM_BOT_API_KEY
@@ -51,4 +49,3 @@ services:
 
 volumes:
   mongodb_volume:
-  sqlite_volume:
