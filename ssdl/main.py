@@ -6,12 +6,18 @@ import asyncio
 import pydantic_settings
 import logging
 from motor.motor_asyncio import AsyncIOMotorClient
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from openai import AsyncOpenAI
+
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 
 from .apps.ping import Ping
 from .apps.chat_helper import ChatHelper
 from .apps.login import LogIn
+from .apps.scheduler_messages import SchedledMessages
+from .apps.words import Words
+from .apps.LearningPlan import LearningPlan
 
 
 telebot.logger.setLevel(logging.DEBUG) # Outputs debug messages to console.
@@ -20,7 +26,6 @@ telebot.logger.setLevel(logging.DEBUG) # Outputs debug messages to console.
 
 class TelegramSettings(pydantic_settings.BaseSettings):
     api_key: str
-
     class Config:
         env_prefix = "TELEGRAM_BOT_"
 
@@ -50,13 +55,23 @@ def main():
     )
     db = client.SieSollenDeutschLernen
 
+    scheduler = AsyncIOScheduler()
+
     ping_app = Ping(bot, db)
     chat_helper = ChatHelper(bot, db, gpt4, openai_client)
     login = LogIn(bot, db)
+    wordbase = Words(bot, db, gpt4)
+
+    learning_plan = LearningPlan(bot, db, scheduler, ping_app, wordbase)
+
+    async def _main():
+        scheduler.start()
+        learning_plan.schedule_plan()
+        await bot.infinity_polling()
 
     bot.add_custom_filter(asyncio_filters.StateFilter(bot))
     bot.add_custom_filter(asyncio_filters.ChatFilter())
-    asyncio.run(bot.infinity_polling())
+    asyncio.run(_main())
 
 
 if __name__ == '__main__':

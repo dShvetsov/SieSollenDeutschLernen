@@ -1,7 +1,9 @@
 aiofiles==23.2.1
 aiohttp==3.8.6
-langchain==0.0.335
-openai==1.3.1
+langchain
+langchain_core
+langchain_openai
+openai
 pandas==2.1.3
 pydantic==2.4.2
 pydantic-settings==2.0.3
@@ -11,3 +13,4 @@ requests==2.31.0
 tqdm==4.66.1
 pymongo
 motor
+apscheduler

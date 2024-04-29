@@ -32,12 +32,12 @@ class TeleApp:
 
         async def inner(self, message):
             user_id = message.from_user.id
-            found_user = await self.__db.registered_users.find_one({'user_id': user_id})
+            found_user = await self.__db.registered_users.find_one({'id': user_id})
             if not found_user:
                 await self.__bot.reply_to(message, "You have to be logged in")
                 return
             else:
-                func(self, message)
+                await func(self, message)
 
         return inner
 
